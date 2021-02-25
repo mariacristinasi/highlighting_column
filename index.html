@@ -54,17 +54,19 @@
             d3.csv(csv_url).then(tidying)
 
             function updateTable(d) {
+                d.sort((a,b) => a-b);  //when applying d3.descending, it's ordered by the biggest first digit and not by the maximum number
                 d3.select("table tbody")
                     .selectAll("tr")
-                    .data(d)
+                    .data(d.filter(function(d,i){ return i<10 }))
                     .join("tr")
                     .selectAll("td")
                     .data(e => columns.map(x => e[x]))
                     .join("td")
-                        .text(x => x);
+                    .text(x => x); 
+                    //.filter(function(d, i, c){ return d.i < 11 }))
             }
 
-            function makeHeader(d) {
+            function makeHeader(d) { // where are the headers??
                 d3.select("table thead").selectAll("tr").remove()
 
                 d3.select("table thead")
@@ -105,6 +107,8 @@
             function updateSelect(e) {
                 val = d3.select("select").node().value
                 fdata = d3.filter(data, d => d.date == val)
+                maxValue = d3.reduce(fdata, (p, v) => Math.max(p,v.value) , 0)*1.6
+
                 updateTable(fdata)
                 updateChart(fdata)
                 updateChart(fdata)
@@ -115,14 +119,14 @@
                 w = svg.node().width.baseVal.value;
                 h = svg.node().height.baseVal.value;
 
-                x = d3.scaleLinear([0, data.length], [0, w])
+                x = d3.scaleLinear([0, 10], [0, w])
                 y = d3.scaleLinear([0, maxValue], [0,h])
                 cat = new Set(d3.map(data, d => d.category))
                 color = d3.scaleOrdinal(cat, d3.schemeTableau10)
 
                 svgBind = svg.text("")
                     .selectAll("rect")
-                    .data(data)
+                    .data(data.filter(function(d,i){ return i<10 }))
 
                 svgBind.enter()
                     .append('rect')
