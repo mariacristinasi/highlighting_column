@@ -63,8 +63,7 @@
                     .data(e => columns.map(x => e[x]))
                     .join("td")
                     .text(x => x); 
-                    //.filter(function(d, i, c){ return d.i < 11 }))
-            }
+                }
 
             function makeHeader(d) { // where are the headers??
                 d3.select("table thead").selectAll("tr").remove()
