@@ -1,71 +1,58 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>d3.js data driven page</title>
+        <title>Bars highlighter - María Cristina & Ignacio</title>
         <script src="https://d3js.org/d3.v6.min.js"></script>
         <style>
 
             #myCanvas {
-                background-color: yellow;
+                background-color: #EBF5FB;
             }
 
-            th {
-                color: blue;
-            }
-
-            .name {
-                color: red;
-                border: solid black 1pt;
-            }
-
-            .name:hover {
-                border-width: 2pt;
-            }
-
-            .date {
-                color: green;
-            }
-            .date:hover
-            {
-                font-weight: bold;
+            tr:hover {
+                background-color: #D8DA5C
             }
         </style>
     </head>
 
     <body>
-        <p>
+        <font face="calibri" size="5" style="color: darkblue">Bars highlighter</font><br>
+        <p style="font-family: calibri">
             This page is inspired by the 
             <a href="https://observablehq.com/@d3/bar-chart-race" target="_blank"><b>Bar Chart Race</b></a>
-            <button onclick="colorP()">Click me</button>
+            <button onclick="colorP()" style="font-family: calibri">Click me</button>
 
             <div id="dateSelector"></div>
+            <br>
             <svg id="myCanvas" style="width:100%; height: 200px;"></svg>
-            <table><thead></thead><tbody></tbody></table>
+            <br>
+            <br>
+            <table border="1" style="font-family: calibri; border-collapse: collapse; border-color: rgb(163, 163, 163)"><thead></thead><tbody></tbody></table>
         </p>
 
         <script>
             csv_url = false ? "category-brands.csv" : "https://raw.githubusercontent.com/bernardo-dauria/2021-02-10-example/main/category-brands.csv";
-            cs = {
-                    "date": "fecha",
-                    "name": "nombre",
-                    "category": "categoria",
-                    "value": "valor"
-                };
             d3.csv(csv_url).then(tidying)
 
+            var selected_name;
+            function highlightClick(g) {
+                selected_name = g.target.innerText;
+                updateSelect()
+            }
+            
             function updateTable(d) {
-                d.sort((a,b) => a-b);  //when applying d3.descending, it's ordered by the biggest first digit and not by the maximum number
+                d.sort((a,b) => a-b);
                 d3.select("table tbody")
                     .selectAll("tr")
                     .data(d.filter(function(d,i){ return i<10 }))
-                    .join("tr")
+                    .join("tr").on("click", d => highlightClick(d))
                     .selectAll("td")
                     .data(e => columns.map(x => e[x]))
                     .join("td")
                     .text(x => x); 
-                }
+            }
 
-            function makeHeader(d) { // where are the headers??
+            function makeHeader(d) {
                 d3.select("table thead").selectAll("tr").remove()
 
                 d3.select("table thead")
@@ -73,6 +60,9 @@
                     .selectAll("th")
                     .data(columns)
                     .join("th").text(e => e)
+                    .style("color", "black")
+                    .style("text-align", "left")
+                    .style("font-family", "calibri")
             }
 
             var data, columns, maxValue;
@@ -92,7 +82,8 @@
                 htmlNode = d3.select("#dateSelector");
                 htmlNode.append("label")
                 .attr("for", "dates")
-                .text("Choose a date: ");
+                .text("Choose a date: ")
+                .style("font-family", "calibri");
                 htmlNode.append("select")
                 .attr("id", "dates")
                 .on("change", d => updateSelect(d))
@@ -100,7 +91,8 @@
                 .data(d).enter()
                 .append("option")
                 .attr("value", e => e)
-                .text(e => e.slice(0,4));
+                .text(e => e.slice(0,4))
+                .style("font-family", "calibri");
             }
 
             function updateSelect(e) {
@@ -109,7 +101,7 @@
                 maxValue = d3.reduce(fdata, (p, v) => Math.max(p,v.value) , 0)*1.6
 
                 updateTable(fdata)
-                updateChart(fdata)
+                makeHeader(fdata)
                 updateChart(fdata)
             }  
 
@@ -133,7 +125,7 @@
                     .attr('y', d => y(maxValue - d.value))
                     .attr('height', d => y(d.value))
                     .attr('width', x(1)*0.95)
-                    .attr('fill', d => color(d.category))
+                    .attr('fill', d => (d.name == selected_name ? '#229954' : 'lightgreen'))
 
                 svgBind.enter()
                     .append("text")
@@ -143,7 +135,8 @@
                           (d , i) => 'translate(' + x(i+0.5) +
                             ',' + y(maxValue - d.value - 5000)+'),' 
                             + 'rotate(-90)')
-                    .text(d => d.name);
+                    .text(d => d.name)
+                    .style("font-family", "calibri");
             }
 
             function colorP() {
